@@ -1,1 +1,5 @@
-# Gramática 2 del PDF
+S → aAa | bBb | ϵ
+A → C | a
+B → C | b
+C → CDE | ϵ
+D → A | B | ab

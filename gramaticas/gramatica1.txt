@@ -1,1 +1,4 @@
-# Gramática 1 del PDF
+S → 0A0 | 1B1 | BB
+A → C
+B → S | A
+C → S | ϵ
