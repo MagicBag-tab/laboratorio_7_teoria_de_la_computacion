@@ -1,4 +1,5 @@
-from lector import leer_archivo, interpretar_gramatica, mostrar_gramatica
+from lector import leer_archivo
+from gramatica import interpretar_gramatica, mostrar_gramatica
 from simplificacion import encontrar_anulables, generar_variantes, eliminar_epsilon
 
 def main():
@@ -18,6 +19,9 @@ def main():
         
     print("\nGramática original:")
     mostrar_gramatica(gramatica)
+    
+    anulables = encontrar_anulables(gramatica)
+    print(f"\nSímbolos anulables encontrados: {anulables}")
 
 if __name__ == "__main__":
     main()

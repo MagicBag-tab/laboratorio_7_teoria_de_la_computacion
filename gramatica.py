@@ -1,0 +1,85 @@
+def validar_linea(numero_linea, linea):
+    if '->' not in linea and '→' not in linea:
+        print(f"Error en la línea {numero_linea}: Falta la flecha.")
+        return False
+        
+    separador = '->' if '->' in linea else '→'
+    partes = linea.split(separador)
+    
+    if len(partes) != 2:
+        print(f"Error en la línea {numero_linea}: Hay más de una flecha.")
+        return False
+        
+    cabeza = partes[0].strip()
+    cuerpo = partes[1].strip()
+    
+    if len(cabeza) != 1 or not cabeza.isupper() or not cabeza.isalpha():
+        print(f"Error en la línea {numero_linea}: La cabeza '{cabeza}' debe ser una sola letra mayúscula.")
+        return False
+        
+    if not cuerpo:
+        print(f"Error en la línea {numero_linea}: El cuerpo está vacío.")
+        return False
+        
+    alternativas = cuerpo.split('|')
+    for alt in alternativas:
+        alt_strip = alt.strip()
+        
+        if not alt_strip:
+            print(f"Error en la línea {numero_linea}: Falta una alternativa.")
+            return False
+            
+        alt_sin_espacios = alt_strip.replace(' ', '')
+        
+        if 'ε' in alt_sin_espacios or 'ϵ' in alt_sin_espacios:
+            if len(alt_sin_espacios) > 1:
+                print(f"Error en la línea {numero_linea}: ε está mezclada con otro símbolo.")
+                return False
+                
+        for char in alt_sin_espacios:
+            if not (char.isalpha() or char.isdigit() or char in ('ε', 'ϵ')):
+                print(f"Error en la línea {numero_linea}: Símbolo no permitido '{char}'.")
+                return False
+                
+    return True
+
+def interpretar_gramatica(lineas):
+    gramatica = {}
+    for num_linea, linea in lineas:
+        if not validar_linea(num_linea, linea):
+            return None
+            
+        separador = '->' if '->' in linea else '→'
+        cabeza, cuerpo = linea.split(separador, 1)
+        cabeza = cabeza.strip()
+        cuerpo = cuerpo.strip()
+        
+        if cabeza not in gramatica:
+            gramatica[cabeza] = set()
+            
+        alternativas = cuerpo.split('|')
+        for alt in alternativas:
+            alt_limpia = alt.strip().replace(' ', '')
+            
+            if alt_limpia in ('ε', 'ϵ'):
+                gramatica[cabeza].add("")
+            else:
+                gramatica[cabeza].add(alt_limpia)
+                
+    return gramatica
+
+def mostrar_gramatica(gramatica):
+    if not gramatica:
+        print("La gramática está vacía.")
+        return
+        
+    for cabeza, alternativas in gramatica.items():
+        alts_lista = []
+        for alt in alternativas:
+            if alt == "":
+                alts_lista.append("ε")
+            else:
+                alts_lista.append(alt)
+                
+        alts_str = ' | '.join(sorted(alts_lista))
+        print(f"{cabeza} -> {alts_str}")
