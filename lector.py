@@ -1,67 +1,95 @@
-import re
+import os
 
-def leer_gramatica(ruta):
-    """
-    Lee una gramática desde un archivo de texto.
+def leer_archivo(ruta):
+
+    if not os.path.exists(ruta):
+        print(f"Error: El archivo '{ruta}' no existe.")
+        return None
     
-    Reglas soportadas:
-    - Una producción por línea, con símbolos separados por '|'
-    - Una letra mayúscula representa un no terminal.
-    - Las minúsculas y los dígitos representan terminales.
-    - Acepta '->' y '→'.
-    - Acepta 'ε' y 'ϵ' como formas de escribir la cadena vacía.
+    lineas = []
+    try:
+        with open(ruta, 'r', encoding='utf-8') as f:
+            for num_linea, linea in enumerate(f, 1):
+                texto = linea.strip()
+                if texto and not texto.startswith('#'):
+                    lineas.append((num_linea, texto))
+    except Exception as e:
+        print(f"Error al leer el archivo '{ruta}': {e}")
+        return None
+        
+    if not lineas:
+        print(f"Aviso: El archivo '{ruta}' está vacío o no contiene producciones válidas.")
+        return None
+        
+    return lineas
+
+def validar_linea(numero_linea, linea):
+
+    if '->' not in linea and '→' not in linea:
+        print(f"Error en la línea {numero_linea}: Falta el operador de producción ('->' o '→').")
+        return False
+        
+    separador = '->' if '->' in linea else '→'
+    partes = linea.split(separador)
     
-    Retorna:
-        Un diccionario donde la clave es el no terminal y el valor
-        es una lista de alternativas, donde cada alternativa es una lista de símbolos.
-    """
+    if len(partes) != 2:
+        print(f"Error en la línea {numero_linea}: Hay más de un operador de producción en la misma línea.")
+        return False
+        
+    cabeza, cuerpo = partes[0].strip(), partes[1].strip()
+    
+    if len(cabeza) != 1 or not cabeza.isupper() or not cabeza.isalpha():
+        print(f"Error en la línea {numero_linea}: El lado izquierdo '{cabeza}' debe ser un único símbolo No Terminal (una letra mayúscula).")
+        return False
+        
+    if not cuerpo:
+        print(f"Error en la línea {numero_linea}: El cuerpo de la producción está vacío (use ε o ϵ explícitamente para la cadena vacía).")
+        return False
+        
+    return True
+
+def interpretar_gramatica(lineas):
+
     gramatica = {}
-    
-    with open(ruta, 'r', encoding='utf-8') as f:
-        for linea in f:
-            linea = linea.strip()
-            if not linea or linea.startswith('#'):
-                continue
-                
-            if '->' in linea:
-                cabeza, cuerpo = linea.split('->', 1)
-            elif '→' in linea:
-                cabeza, cuerpo = linea.split('→', 1)
-            else:
-                continue
-                
-            cabeza = cabeza.strip()
-            cuerpo = cuerpo.strip()
+    for num_linea, linea in lineas:
+        if not validar_linea(num_linea, linea):
+            print(f"Se omitirá la línea {num_linea} debido a errores de formato.")
+            continue
             
-            if cabeza not in gramatica:
-                gramatica[cabeza] = []
-                
-            alternativas = cuerpo.split('|')
-            for alt in alternativas:
-                alt = alt.strip()
-                simbolos = []
-                
-                if alt in ('ε', 'ϵ'):
-                    simbolos.append('ε')
-                else:
-                    alt = alt.replace(' ', '')
-                    for char in alt:
-                        if char == 'ϵ':
-                            simbolos.append('ε')
-                        else:
-                            simbolos.append(char)
-                            
+        separador = '->' if '->' in linea else '→'
+        cabeza, cuerpo = linea.split(separador, 1)
+        cabeza = cabeza.strip()
+        cuerpo = cuerpo.strip()
+        
+        if cabeza not in gramatica:
+            gramatica[cabeza] = []
+            
+        alternativas = cuerpo.split('|')
+        for alt in alternativas:
+            alt = alt.strip()
+            simbolos = []
+            
+            if alt in ('ε', 'ϵ'):
+                simbolos.append('ε')
+            else:
+                alt_sin_espacios = alt.replace(' ', '')
+                for char in alt_sin_espacios:
+                    if char in ('ε', 'ϵ'):
+                        simbolos.append('ε')
+                    else:
+                        simbolos.append(char)
+                        
+            if simbolos not in gramatica[cabeza]:
                 gramatica[cabeza].append(simbolos)
                 
     return gramatica
 
-def es_no_terminal(simbolo):
-    return simbolo.isupper() and simbolo.isalpha()
+def mostrar_gramatica(gramatica):
 
-def es_terminal(simbolo):
-    return (simbolo.islower() and simbolo.isalpha()) or simbolo.isdigit()
-
-def imprimir_gramatica(gramatica):
-    for no_terminal, alternativas in gramatica.items():
-        str_alternativas = ' | '.join([''.join(alt) for alt in alternativas])
-        print(f"{no_terminal} -> {str_alternativas}")
+    if not gramatica:
+        print("La gramática está vacía.")
+        return
+        
+    for cabeza, alternativas in gramatica.items():
+        alts_str = ' | '.join([''.join(alt) for alt in alternativas])
+        print(f"{cabeza} -> {alts_str}")
