@@ -9,7 +9,7 @@ def main():
     if len(sys.argv) > 1:
         ruta_archivo = sys.argv[1]
     else:
-        ruta_archivo = "gramaticas/gramatica1.txt"
+        ruta_archivo = "gramaticas/gramatica3.txt"
         
     print(f"\nLeyendo '{ruta_archivo}'...")
     

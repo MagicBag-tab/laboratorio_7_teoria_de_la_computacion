@@ -7,3 +7,4 @@ python main.py
 ```
 
 ## Enlace al video
+https://youtu.be/WTvUIOdoFno
