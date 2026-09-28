@@ -1,4 +1,4 @@
-# laboratorio_7_teoria_de_la_computacion
+# Laboratorio 7 Teoría de la Computación
 
 ## Instrucciones de ejecución
 Para ejecutar el proyecto, corre el siguiente comando en la terminal:
