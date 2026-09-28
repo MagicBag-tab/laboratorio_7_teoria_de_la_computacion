@@ -1,3 +1,5 @@
+from itertools import combinations
+
 def encontrar_anulables(gramatica):
     anulables = set()
     
@@ -29,8 +31,33 @@ def encontrar_anulables(gramatica):
                     
     return anulables
 
+def obtener_posiciones_anulables(cuerpo, anulables):
+    posiciones = []
+    for i, char in enumerate(cuerpo):
+        if char in anulables:
+            posiciones.append(i)
+    return posiciones
+
 def generar_variantes(cuerpo, anulables):
-    pass
+    if cuerpo == "":
+        return set(), True, []
+        
+    posiciones = obtener_posiciones_anulables(cuerpo, anulables)
+    completamente_anulable = (len(posiciones) == len(cuerpo))
+    
+    variantes = set()
+    
+    for r in range(len(posiciones) + 1):
+        for eliminados in combinations(posiciones, r):
+            nueva_variante = ""
+            for i, char in enumerate(cuerpo):
+                if i not in eliminados:
+                    nueva_variante += char
+                    
+            if nueva_variante != "":
+                variantes.add(nueva_variante)
+                
+    return variantes, completamente_anulable, posiciones
 
 def eliminar_epsilon(gramatica):
     pass
