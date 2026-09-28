@@ -79,25 +79,16 @@ def interpretar_gramatica(lineas):
         cuerpo = cuerpo.strip()
         
         if cabeza not in gramatica:
-            gramatica[cabeza] = []
+            gramatica[cabeza] = set()
             
         alternativas = cuerpo.split('|')
         for alt in alternativas:
-            alt = alt.strip()
-            simbolos = []
+            alt_limpia = alt.strip().replace(' ', '')
             
-            if alt in ('ε', 'ϵ'):
-                simbolos.append('ε')
+            if alt_limpia in ('ε', 'ϵ'):
+                gramatica[cabeza].add("")
             else:
-                alt_sin_espacios = alt.replace(' ', '')
-                for char in alt_sin_espacios:
-                    if char in ('ε', 'ϵ'):
-                        simbolos.append('ε')
-                    else:
-                        simbolos.append(char)
-                        
-            if simbolos not in gramatica[cabeza]:
-                gramatica[cabeza].append(simbolos)
+                gramatica[cabeza].add(alt_limpia)
                 
     return gramatica
 
@@ -107,5 +98,12 @@ def mostrar_gramatica(gramatica):
         return
         
     for cabeza, alternativas in gramatica.items():
-        alts_str = ' | '.join([''.join(alt) for alt in alternativas])
+        alts_lista = []
+        for alt in alternativas:
+            if alt == "":
+                alts_lista.append("ε")
+            else:
+                alts_lista.append(alt)
+                
+        alts_str = ' | '.join(sorted(alts_lista))
         print(f"{cabeza} -> {alts_str}")
