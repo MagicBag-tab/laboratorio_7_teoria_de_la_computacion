@@ -1,3 +1,4 @@
+import sys
 from lector import leer_archivo
 from gramatica import interpretar_gramatica, mostrar_gramatica
 from simplificacion import encontrar_anulables, eliminar_epsilon
@@ -5,7 +6,11 @@ from simplificacion import encontrar_anulables, eliminar_epsilon
 def main():
     print("=== Simplificación de Gramáticas ===")
     
-    ruta_archivo = "gramaticas/gramatica1.txt"
+    if len(sys.argv) > 1:
+        ruta_archivo = sys.argv[1]
+    else:
+        ruta_archivo = "gramaticas/gramatica1.txt"
+        
     print(f"\nLeyendo '{ruta_archivo}'...")
     
     lineas = leer_archivo(ruta_archivo)
@@ -17,15 +22,18 @@ def main():
         print("\nLa validación falló. Se detiene la ejecución antes de transformar la gramática.")
         return
         
+    print("Archivo cargado y validado correctamente.")
+        
     print("\nGramática original:")
     mostrar_gramatica(gramatica)
     
     anulables = encontrar_anulables(gramatica)
-    print(f"\nSímbolos anulables encontrados: {anulables}\n")
+    anulables_ordenados = sorted(list(anulables))
+    print(f"\nConjunto final de símbolos anulables: {{{', '.join(anulables_ordenados)}}}")
     
     nueva_gramatica = eliminar_epsilon(gramatica, anulables)
     
-    print("\nGramática sin producciones ε:")
+    print("\nGramática final sin producciones ε:")
     mostrar_gramatica(nueva_gramatica)
 
 if __name__ == "__main__":
