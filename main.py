@@ -1,6 +1,6 @@
 from lector import leer_archivo
 from gramatica import interpretar_gramatica, mostrar_gramatica
-from simplificacion import encontrar_anulables, generar_variantes
+from simplificacion import encontrar_anulables, eliminar_epsilon
 
 def main():
     print("=== Simplificación de Gramáticas ===")
@@ -21,16 +21,12 @@ def main():
     mostrar_gramatica(gramatica)
     
     anulables = encontrar_anulables(gramatica)
-    print(f"\nSímbolos anulables encontrados: {anulables}")
+    print(f"\nSímbolos anulables encontrados: {anulables}\n")
     
-    print("\n--- Análisis de Cuerpos ---")
-    for cabeza, alternativas in gramatica.items():
-        for alt in alternativas:
-            if alt == "":
-                continue
-            variantes, completo, posiciones = generar_variantes(alt, anulables)
-            print(f"Cuerpo '{alt}': Posiciones anulables {posiciones}, Completamente anulable: {completo}")
-            print(f" -> Variantes generadas: {variantes}")
+    nueva_gramatica = eliminar_epsilon(gramatica, anulables)
+    
+    print("\nGramática sin producciones ε:")
+    mostrar_gramatica(nueva_gramatica)
 
 if __name__ == "__main__":
     main()

@@ -47,21 +47,17 @@ def generar_variantes(cuerpo, anulables):
     
     variantes = set()
     
-    # Recorremos 2^m combinaciones de las posiciones anulables.
-    # Usamos True para "Conservar" y False para "Quitar".
     for combinacion in product([True, False], repeat=len(posiciones)):
         nueva_variante = ""
         idx_anulable = 0
         
         for i, char in enumerate(cuerpo):
             if i in posiciones:
-                # Tomar la decisión según la combinación actual
                 conservar = combinacion[idx_anulable]
                 if conservar:
                     nueva_variante += char
                 idx_anulable += 1
             else:
-                # Símbolos no anulables (y terminales) siempre permanecen
                 nueva_variante += char
                 
         if nueva_variante != "":
@@ -69,5 +65,21 @@ def generar_variantes(cuerpo, anulables):
             
     return variantes, completamente_anulable, posiciones
 
-def eliminar_epsilon(gramatica):
-    pass
+def eliminar_epsilon(gramatica, anulables):
+    nueva_gramatica = {}
+    
+    for cabeza, alternativas in gramatica.items():
+        nueva_gramatica[cabeza] = set()
+        
+        for alt in alternativas:
+            if alt == "":
+                continue
+                
+            variantes, _, _ = generar_variantes(alt, anulables)
+            for variante in variantes:
+                nueva_gramatica[cabeza].add(variante)
+                
+    if "S" in anulables:
+        print("Aviso: El símbolo inicial (S) es anulable. Al eliminar las producciones ε, se excluye la cadena vacía del lenguaje generado.")
+        
+    return nueva_gramatica
